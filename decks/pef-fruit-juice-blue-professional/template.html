@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>脉冲电场非热杀菌技术在食品中的应用——以果蔬汁保鲜为例</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #fdfae7;
+      --primary: #1e2bfa;
+      --text: #111111;
+      --text-muted: #6b6b6b;
+      --text-light: #9a9a9a;
+      --accent-light: rgba(30, 43, 250, 0.08);
+      --accent-medium: rgba(30, 43, 250, 0.15);
+      --border: rgba(30, 43, 250, 0.2);
+      --card-bg: rgba(30, 43, 250, 0.04);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Slide container */
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      /* Asymmetric padding: extra bottom space to clear the fixed
+         slide-counter (left) and nav-controls (right). Without this,
+         cards/grids that fill slide-content overlap the nav chrome. */
+      padding: 3.5vw 4vw 8.5vh 4vw;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(40px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(0);
+      z-index: 10;
+    }
+
+    .slide.prev {
+      transform: translateX(-40px);
+    }
+
+    /* Typography */
+    h1, h2, h3, h4 {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    h1 {
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    h4 {
+      font-size: clamp(0.85rem, 1.2vw, 1rem);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+    }
+
+    p, li {
+      font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+      line-height: 1.6;
+      color: var(--text-muted);
+    }
+
+    /* Slide header bar */
+    .slide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2.5vh;
+      flex-shrink: 0;
+    }
+
+    .slide-header h4 {
+      margin: 0;
+    }
+
+    .slide-header .tag {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--primary);
+      background: var(--accent-light);
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+    }
+
+    /* Slide content area */
+    .slide-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    /* Navigation */
+    .nav-controls {
+      position: fixed;
+      bottom: 2.5vh;
+      right: 3vw;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--bg);
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      font-size: 1.1rem;
+    }
+
+    .nav-btn:hover {
+      background: var(--primary);
+      color: var(--bg);
+      border-color: var(--primary);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      position: fixed;
+      bottom: 2.5vh;
+      left: 3vw;
+      z-index: 100;
+    }
+
+    .progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background: var(--primary);
+      transition: width 0.4s ease;
+      z-index: 100;
+    }
+
+    /* Decorative elements */
+    .accent-line {
+      width: 60px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+    }
+
+    .accent-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* ============================================================
+       LAYOUT 1: Cover / Title Slide
+       ============================================================ */
+    .layout-cover {
+      justify-content: center;
+      align-items: flex-start;
+      padding-left: 8vw;
+    }
+
+    .layout-cover h1 {
+      max-width: 55vw;
+      margin-bottom: 1.5rem;
+      line-height: 1.05;
+    }
+
+    .layout-cover .subtitle {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 40vw;
+      margin-bottom: 3rem;
+      font-weight: 400;
+    }
+
+    .layout-cover .meta {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      letter-spacing: 0.05em;
+    }
+
+    .layout-cover .cover-decoration {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 35vw;
+      height: 100vh;
+      background: var(--accent-light);
+      clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
+    }
+
+    .layout-cover .cover-dots {
+      position: absolute;
+      bottom: 12vh;
+      right: 8vw;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      opacity: 0.25;
+    }
+
+    .layout-cover .cover-dots .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+    }
+
+    /* ============================================================
+       LAYOUT 2: Agenda / Table of Contents
+       ============================================================ */
+    .layout-agenda .agenda-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 1rem 3rem;
+      margin-top: 1rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .agenda-item {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      transition: background 0.2s ease;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .agenda-item:hover {
+      background: var(--card-bg);
+    }
+
+    .agenda-num {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+      min-width: 36px;
+    }
+
+    .agenda-item h3 {
+      margin-bottom: 0.3rem;
+      font-size: clamp(1rem, 1.4vw, 1.2rem);
+    }
+
+    .agenda-item p {
+      font-size: clamp(0.8rem, 1vw, 0.95rem);
+      line-height: 1.5;
+    }
+
+    /* ============================================================
+       LAYOUT 3: Key Metrics (3 large callouts)
+       Cards size to their content; the row centers vertically
+       inside the remaining slide-content area.
+       ============================================================ */
+    .layout-metrics .slide-content {
+      justify-content: flex-start;
+    }
+
+    .layout-metrics .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+      align-items: stretch;
+    }
+
+    .metric-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      padding: 1.5rem 1.6rem;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+    }
+
+    .metric-card .metric-value {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: clamp(2.2rem, 3.4vw, 3rem);
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .metric-card .metric-label {
+      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .metric-card .metric-desc {
+      font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .metric-card .metric-supports {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin: 0.2rem 0 0;
+      padding: 0.7rem 0 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .metric-card .metric-supports li {
+      font-size: clamp(0.75rem, 0.9vw, 0.85rem);
+      color: var(--text-muted);
+      padding-left: 1rem;
+      position: relative;
+      line-height: 1.45;
+    }
+
+    .metric-card .metric-supports li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--text-light);
+    }
+
+    .metric-card .metric-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-top: 0.3rem;
+    }
+
+    .metric-change.positive { color: #059669; }
+    .metric-change.negative { color: #dc2626; }
+
+    /* ============================================================
+       LAYOUT 4: Data Dashboard (6 stat grid)
+       Cells have natural height with stat at top + name + small
+       context line. Grid is auto-sized; the row stays in the upper
+       portion of slide-content with the bottom-padding reserved
+       for nav chrome.
+       ============================================================ */
+    .layout-dashboard .slide-content {
+      justify-content: flex-start;
+    }
+
+    .layout-dashboard .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 0.5rem;
+    }
+
+    .stat-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1.4rem 1.5rem;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+    }
+
+    .stat-cell .stat-top {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .stat-cell .stat-num {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .stat-cell .stat-unit {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
+    .stat-cell .stat-name {
+      font-size: clamp(0.85rem, 1vw, 0.95rem);
+      color: var(--text);
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .stat-cell .stat-context {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      line-height: 1.4;
+      padding-top: 0.4rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ============================================================
+       LAYOUT 5: Two Column Split
+       Left = numbered insight list, Right = pull-quote + supporting
+       stats. Both columns size to their content with natural rhythm
+       (gap-based spacing, no forced height-distribution).
+       ============================================================ */
+    .layout-split .slide-content {
+      justify-content: flex-start;
+    }
+
+    .layout-split .split-body {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 3.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .split-left, .split-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
+    }
+
+    .split-right {
+      padding-left: 2.5rem;
+      border-left: 2px solid var(--border);
+    }
+
+    .insight-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      margin: 0;
+      counter-reset: insight;
+    }
+
+    .insight-list li {
+      position: relative;
+      padding-left: 2.6rem;
+      font-size: clamp(0.88rem, 1.05vw, 1rem);
+      color: var(--text);
+      line-height: 1.55;
+      counter-increment: insight;
+    }
+
+    .insight-list li::before {
+      content: counter(insight, decimal-leading-zero);
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 0.05em;
+      line-height: 1.7;
+    }
+
+    .split-highlight {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: clamp(1.15rem, 1.55vw, 1.5rem);
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.4;
+      padding: 1.3rem 1.5rem;
+      background: var(--accent-light);
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .split-highlight cite {
+      display: block;
+      margin-top: 0.7rem;
+      font-style: normal;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mini-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      padding-top: 0.4rem;
+    }
+
+    .mini-stat {
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+    }
+
+    .mini-stat .mini-val {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .mini-stat .mini-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.4rem;
+      line-height: 1.35;
+    }
+
+    /* ============================================================
+       LAYOUT 6: Horizontal Bar Ranking
+       ============================================================ */
+    .layout-bars .bars-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .bar-item {
+      display: grid;
+      grid-template-columns: minmax(180px, 30%) 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 0;
+    }
+
+    .bar-label {
+      font-size: clamp(0.8rem, 1.1vw, 1rem);
+      color: var(--text);
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    .bar-track {
+      height: 28px;
+      background: var(--accent-light);
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 6px;
+      transition: width 0.8s ease;
+    }
+
+    .bar-pct {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 45px;
+      text-align: right;
+    }
+
+    .bar-note {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 0.2rem;
+    }
+
+    /* ============================================================
+       LAYOUT 7: Quote / Highlight
+       ============================================================ */
+    .layout-quote {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .layout-quote .quote-mark {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 8rem;
+      font-weight: 700;
+      color: var(--primary);
+      opacity: 0.15;
+      line-height: 0.5;
+      margin-bottom: 1rem;
+    }
+
+    .layout-quote blockquote {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      font-weight: 500;
+      line-height: 1.35;
+      color: var(--text);
+      max-width: 65vw;
+      margin-bottom: 2rem;
+    }
+
+    .layout-quote .quote-source {
+      font-size: clamp(0.85rem, 1.1vw, 1rem);
+      color: var(--text-muted);
+    }
+
+    .layout-quote .quote-source strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .layout-quote .quote-decoration {
+      position: absolute;
+      top: 10vh;
+      left: 5vw;
+      width: 80px;
+      height: 80px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+    }
+
+    .layout-quote .quote-decoration-2 {
+      position: absolute;
+      bottom: 12vh;
+      right: 6vw;
+      width: 60px;
+      height: 60px;
+      background: var(--accent-light);
+      border-radius: 50%;
+    }
+
+    /* ============================================================
+       LAYOUT 8: Timeline / Process Flow
+       ============================================================ */
+    .layout-timeline .timeline-track {
+      display: flex;
+      gap: 1.5rem;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .timeline-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .timeline-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 28px;
+      right: -0.75rem;
+      width: 1.5rem;
+      height: 2px;
+      background: var(--border);
+    }
+
+    .step-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .timeline-step:nth-child(2) .step-circle { opacity: 0.85; }
+    .timeline-step:nth-child(3) .step-circle { opacity: 0.7; }
+    .timeline-step:nth-child(4) .step-circle { opacity: 0.55; }
+
+    .step-title {
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .step-desc {
+      font-size: clamp(0.75rem, 1vw, 0.9rem);
+      color: var(--text-muted);
+      line-height: 1.5;
+      max-width: 220px;
+    }
+
+    /* ============================================================
+       LAYOUT 9: Detailed Analysis (bullets with sub-items)
+       ============================================================ */
+    .layout-detail .detail-body {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem 3rem;
+      flex: 1;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+
+    .detail-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .detail-block {
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+    }
+
+    .detail-block h3 {
+      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+      margin-bottom: 0.6rem;
+      color: var(--text);
+    }
+
+    .detail-block ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .detail-block ul li {
+      position: relative;
+      padding-left: 1.1rem;
+      padding-bottom: 0.4rem;
+      font-size: clamp(0.78rem, 1vw, 0.9rem);
+      line-height: 1.5;
+    }
+
+    .detail-block ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55rem;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .detail-block ul li:last-child {
+      padding-bottom: 0;
+    }
+
+    /* ============================================================
+       LAYOUT 10: Closing / CTA
+       ============================================================ */
+    .layout-closing {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .layout-closing h1 {
+      margin-bottom: 1rem;
+    }
+
+    .layout-closing .closing-sub {
+      font-size: clamp(1rem, 1.5vw, 1.3rem);
+      color: var(--text-muted);
+      max-width: 45vw;
+      margin-bottom: 2.5rem;
+    }
+
+    .layout-closing .cta-btn {
+      display: inline-block;
+      font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--primary);
+      padding: 0.9rem 2.2rem;
+      border-radius: 100px;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .layout-closing .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(30, 43, 250, 0.25);
+    }
+
+    .layout-closing .closing-contact {
+      margin-top: 3rem;
+      font-size: 0.85rem;
+      color: var(--text-light);
+    }
+
+    .layout-closing .closing-decoration {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px;
+      height: 500px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .layout-closing .closing-decoration-2 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 360px;
+      height: 360px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* Keyboard hint */
+    .keyboard-hint {
+      position: fixed;
+      bottom: 2.5vh;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: var(--text-light);
+      z-index: 100;
+      opacity: 0.6;
+    }
+
+    /* Responsive adjustments for very small heights */
+    @media (max-height: 700px) {
+      .slide { padding: 2.5vh 3vw; }
+      .layout-agenda .agenda-grid { gap: 0.8rem 2rem; }
+      .agenda-item { padding: 0.8rem; }
+      .metric-card { padding: 1rem; }
+      .layout-bars .bars-container { gap: 0.5rem; }
+      .bar-item { padding: 0.4rem 0; }
+      .detail-block { padding: 0.8rem 1rem; }
+    }
+
+
+    /* ============================================================
+       PEF deck extension: diagrams, tables, and classroom visuals
+       ============================================================ */
+    .kicker { color: var(--primary); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif; font-size: .78rem; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: stretch; margin-top: 1rem; }
+    .visual-card, .note-card { border: 1.5px solid var(--border); background: var(--card-bg); border-radius: 16px; padding: 1.4rem; }
+    .visual-card h3, .note-card h3 { color: var(--text); margin-bottom: .7rem; }
+    .clean-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; margin-top: .5rem; }
+    .clean-list li { position: relative; padding-left: 1.2rem; color: var(--text-muted); }
+    .clean-list li::before { content: ''; position: absolute; left: 0; top: .72em; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1rem; }
+    .compare-card { border-radius: 16px; border: 1.5px solid var(--border); background: var(--card-bg); padding: 1.5rem; min-height: 320px; }
+    .compare-card h3 { margin-bottom: 1rem; color: var(--text); }
+    .badge { display:inline-flex; align-items:center; border:1px solid var(--border); background: var(--bg); color: var(--primary); border-radius: 999px; padding:.25rem .7rem; font-size:.75rem; font-weight:600; margin-bottom:.7rem; font-family:'Space Grotesk','Noto Sans SC',sans-serif; }
+    .diagram-wrap { width: 100%; min-height: 310px; display:flex; align-items:center; justify-content:center; }
+    .diagram-wrap svg { width:100%; height:auto; max-height: 360px; }
+    .pulse-line { fill:none; stroke: var(--primary); stroke-width: 4; stroke-linejoin: round; }
+    .soft-line { stroke: var(--border); stroke-width: 2; fill:none; }
+    .svg-label { font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif; fill: var(--text); font-weight: 600; font-size: 18px; }
+    .svg-small { font-family: 'Inter', 'Noto Sans SC', sans-serif; fill: var(--text-muted); font-size: 14px; }
+    .table { width:100%; border-collapse: collapse; margin-top: 1rem; overflow:hidden; border-radius:14px; }
+    .table th, .table td { text-align:left; padding: .85rem 1rem; border-bottom:1px solid var(--border); font-size: clamp(.78rem, .95vw, .92rem); color: var(--text-muted); vertical-align:top; }
+    .table th { color: var(--primary); font-family:'Space Grotesk','Noto Sans SC',sans-serif; font-weight:700; background: var(--accent-light); }
+    .table td:first-child { color: var(--text); font-weight:600; }
+    .application-grid { display:grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1.2rem; }
+    .app-card { border:1px solid var(--border); border-radius:14px; background:var(--card-bg); padding:1rem; text-align:center; min-height: 150px; display:flex; flex-direction:column; justify-content:center; gap:.6rem; }
+    .app-icon { font-size:2rem; line-height:1; }
+    .app-card h3 { font-size:1rem; }
+    .app-card p { font-size:.78rem; line-height:1.45; }
+    .paper-card { border:1.5px solid var(--border); background: linear-gradient(135deg, var(--card-bg), rgba(30,43,250,.015)); border-radius:18px; padding:1.35rem 1.5rem; }
+    .paper-title { font-family:'Space Grotesk','Noto Sans SC',sans-serif; font-size:1.35rem; font-weight:700; color:var(--text); line-height:1.25; margin:.5rem 0 1rem; }
+    .meta-grid { display:grid; grid-template-columns: .8fr 1.2fr; gap:.55rem 1rem; }
+    .meta-grid span:nth-child(odd) { color: var(--primary); font-weight:700; font-size:.85rem; }
+    .meta-grid span:nth-child(even) { color: var(--text-muted); font-size:.85rem; }
+    .quality-row { display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-top:1.2rem; }
+    .quality-card { padding:1rem; border-radius:14px; border:1px solid var(--border); background: var(--card-bg); }
+    .quality-card strong { display:block; color:var(--primary); font-family:'Space Grotesk','Noto Sans SC',sans-serif; font-size:1.15rem; margin-bottom:.4rem; }
+    .pros-cons { display:grid; grid-template-columns: 1fr 1fr; gap:1.4rem; margin-top:1.2rem; }
+    .pros-cons .detail-block { min-height: 360px; }
+    .future-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:1.1rem; margin-top:1.2rem; }
+    .future-card { border:1px solid var(--border); background:var(--card-bg); border-radius:16px; padding:1.3rem; min-height:250px; }
+    .future-card .num { font-family:'Space Grotesk','Noto Sans SC',sans-serif; color:var(--primary); font-size:2rem; font-weight:700; }
+    .source-note { position:absolute; left:4vw; bottom:3.8vh; font-size:.68rem; color: var(--text-light); max-width: 72vw; }
+    .slide-num { position:absolute; right:4vw; top:3.7vw; color: var(--text-light); font-size:.75rem; font-family:'Space Grotesk','Noto Sans SC',sans-serif; }
+    .layout-cover .juice-rig { position:absolute; right:6vw; top:20vh; width:30vw; height:52vh; border:1.5px solid var(--border); border-radius:20px; background:rgba(30,43,250,.035); display:flex; align-items:center; justify-content:center; }
+    .layout-cover h1 { max-width: 60vw; }
+    .layout-cover .subtitle { max-width: 45vw; }
+    @media (max-width: 900px) { .application-grid { grid-template-columns: repeat(2,1fr);} .future-grid, .quality-row, .two-col, .compare-grid, .pros-cons { grid-template-columns:1fr; } .layout-cover .juice-rig { display:none;} }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="deck">
+
+    <!-- SLIDE 1: Cover -->
+    <div class="slide layout-cover active">
+      <div class="cover-decoration"></div>
+      <div class="cover-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+      <div class="accent-line"></div>
+      <h1>脉冲电场非热杀菌技术<br>在食品中的应用</h1>
+      <p class="subtitle">以果蔬汁保鲜为例：从电穿孔原理、处理设备、关键参数到代表性研究案例。</p>
+      <p class="meta">期末作业课堂汇报 &nbsp;&middot;&nbsp; 课程名 / 姓名 / 组员 &nbsp;&middot;&nbsp; 25 min</p>
+      <div class="juice-rig" aria-label="果汁与PEF设备示意图">
+        <svg viewBox="0 0 420 520" role="img">
+          <rect x="42" y="56" width="120" height="290" rx="18" fill="rgba(30,43,250,.08)" stroke="var(--primary)" stroke-width="3"/>
+          <path d="M62 170 C92 138 128 202 150 170 L150 326 L62 326 Z" fill="rgba(30,43,250,.16)"/>
+          <text x="74" y="94" class="svg-label">果蔬汁</text>
+          <rect x="230" y="90" width="130" height="86" rx="12" fill="var(--bg)" stroke="var(--primary)" stroke-width="3"/>
+          <text x="252" y="126" class="svg-label">高压脉冲</text>
+          <text x="268" y="150" class="svg-small">PEF</text>
+          <rect x="214" y="270" width="164" height="72" rx="14" fill="var(--bg)" stroke="var(--primary)" stroke-width="3"/>
+          <line x1="245" y1="286" x2="245" y2="326" stroke="var(--primary)" stroke-width="6"/>
+          <line x1="345" y1="286" x2="345" y2="326" stroke="var(--primary)" stroke-width="6"/>
+          <text x="254" y="314" class="svg-label">处理腔</text>
+          <path d="M162 238 H214" class="pulse-line"/><path d="M296 176 V270" class="pulse-line"/><path d="M378 306 H405" class="pulse-line"/>
+          <circle cx="398" cy="306" r="8" fill="var(--primary)"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Background -->
+    <div class="slide layout-split">
+      <div class="slide-header"><h4>研究背景</h4><span class="tag">Why non-thermal?</span></div><span class="slide-num">02 / 15</span>
+      <div class="slide-content">
+        <h2>传统热杀菌有效，但会牺牲“新鲜感”</h2>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <span class="badge">传统热杀菌</span>
+            <h3>优势：成熟、稳定、杀菌谱广</h3>
+            <ul class="clean-list">
+              <li>通过升温快速降低微生物风险。</li>
+              <li>工艺设备成熟，产业化经验丰富。</li>
+              <li>但高温可能改变色泽、风味与营养成分。</li>
+              <li>部分维生素、芳香物质和热敏活性物质易损失。</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <span class="badge">非热杀菌趋势</span>
+            <h3>目标：安全性与品质保留兼顾</h3>
+            <ul class="clean-list">
+              <li>尽量避免长时间高温暴露。</li>
+              <li>保持果蔬汁的鲜榨风味、颜色和营养。</li>
+              <li>适合冷压果汁、NFC 果汁和功能饮料等产品。</li>
+              <li>PEF 是液态食品中最典型的非热处理技术之一。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: What is PEF -->
+    <div class="slide layout-metrics">
+      <div class="slide-header"><h4>什么是 PEF</h4><span class="tag">Definition</span></div><span class="slide-num">03 / 15</span>
+      <div class="slide-content">
+        <h2>PEF = Pulsed Electric Field，短时高压电脉冲处理食品</h2>
+        <div class="metrics-row">
+          <div class="metric-card"><div class="metric-value">kV/cm</div><div class="metric-label">高电场强度</div><div class="metric-desc">在处理腔电极间形成瞬时强电场，使微生物细胞膜承受跨膜电位。</div><ul class="metric-supports"><li>常用于液态或半液态食品</li><li>处理时间短、可连续化</li></ul></div>
+          <div class="metric-card"><div class="metric-value">μs</div><div class="metric-label">微秒级脉冲</div><div class="metric-desc">以很短的脉冲宽度反复施加电场，减少持续加热带来的品质损伤。</div><ul class="metric-supports"><li>脉冲宽度、频率共同决定剂量</li><li>温升需通过冷却控制</li></ul></div>
+          <div class="metric-card"><div class="metric-value">PEF</div><div class="metric-label">非热杀菌/钝酶技术</div><div class="metric-desc">核心作用对象包括微生物细胞膜，也可影响部分酶活性与质量劣变过程。</div><ul class="metric-supports"><li>适合果汁、乳制品、蛋液等</li><li>常与冷藏或温和加热联用</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Principle -->
+    <div class="slide layout-split">
+      <div class="slide-header"><h4>技术原理</h4><span class="tag">Electroporation</span></div><span class="slide-num">04 / 15</span>
+      <div class="slide-content">
+        <h2>核心机制是“电穿孔”：细胞膜失去完整性</h2>
+        <div class="split-body">
+          <div class="split-left">
+            <ol class="insight-list">
+              <li>外加电场使细胞膜两侧电荷重新分布，跨膜电位升高。</li>
+              <li>当电场超过临界值，脂质双层出现纳米级孔洞。</li>
+              <li>可逆孔洞可能恢复；不可逆孔洞导致内容物泄漏与细胞失活。</li>
+              <li>微生物细胞结构被破坏后，果汁中的腐败和致病风险下降。</li>
+            </ol>
+            <div class="split-highlight">讲课时抓住一句话：PEF 不是“把食品电熟”，而是用瞬时电场破坏微生物细胞膜。<cite>课堂表达建议</cite></div>
+          </div>
+          <div class="split-right visual-card">
+            <div class="diagram-wrap">
+              <svg viewBox="0 0 520 360" role="img" aria-label="细胞膜电穿孔示意图">
+                <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="var(--primary)"/></marker></defs>
+                <ellipse cx="260" cy="180" rx="155" ry="92" fill="rgba(30,43,250,.06)" stroke="var(--primary)" stroke-width="4"/>
+                <ellipse cx="260" cy="180" rx="118" ry="62" fill="var(--bg)" stroke="rgba(30,43,250,.25)" stroke-width="2"/>
+                <path d="M150 150 C176 128, 202 132, 224 154" class="soft-line"/><path d="M296 206 C322 232, 350 228, 374 204" class="soft-line"/>
+                <circle cx="170" cy="180" r="9" fill="var(--primary)"/><circle cx="350" cy="160" r="9" fill="var(--primary)"/><circle cx="318" cy="224" r="7" fill="var(--primary)"/>
+                <path d="M40 88 H174" class="pulse-line" marker-end="url(#arrow)"/><path d="M480 272 H346" class="pulse-line" marker-end="url(#arrow)"/>
+                <text x="34" y="70" class="svg-label">外加电场</text><text x="360" y="300" class="svg-label">膜孔形成</text>
+                <text x="220" y="186" class="svg-small">微生物细胞</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Equipment -->
+    <div class="slide layout-dashboard">
+      <div class="slide-header"><h4>主要设备</h4><span class="tag">System components</span></div><span class="slide-num">05 / 15</span>
+      <div class="slide-content">
+        <h2>PEF 系统由“供能—输送—处理—控温—控制”组成</h2>
+        <div class="stats-grid">
+          <div class="stat-cell"><div class="stat-top"><span class="stat-num">01</span><span class="stat-unit">Power</span></div><div class="stat-name">高压脉冲发生器</div><div class="stat-context">提供短时高压电脉冲，是 PEF 处理的能量核心。</div></div>
+          <div class="stat-cell"><div class="stat-top"><span class="stat-num">02</span><span class="stat-unit">Chamber</span></div><div class="stat-name">处理腔与电极</div><div class="stat-context">食品在电极间流过，接受均匀电场作用。</div></div>
+          <div class="stat-cell"><div class="stat-top"><span class="stat-num">03</span><span class="stat-unit">Flow</span></div><div class="stat-name">泵与管路</div><div class="stat-context">控制流速和停留时间，支持连续化加工。</div></div>
+          <div class="stat-cell"><div class="stat-top"><span class="stat-num">04</span><span class="stat-unit">Cooling</span></div><div class="stat-name">冷却系统</div><div class="stat-context">移除焦耳热，避免处理温度过高影响品质。</div></div>
+          <div class="stat-cell"><div class="stat-top"><span class="stat-num">05</span><span class="stat-unit">Control</span></div><div class="stat-name">控制与监测系统</div><div class="stat-context">监测电压、电流、温度、流量和脉冲参数。</div></div>
+          <div class="stat-cell"><div class="stat-top"><span class="stat-num">06</span><span class="stat-unit">Safety</span></div><div class="stat-name">灌装与卫生设计</div><div class="stat-context">后续无菌/卫生灌装决定处理后污染风险。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Process -->
+    <div class="slide layout-timeline">
+      <div class="slide-header"><h4>技术流程</h4><span class="tag">Processing line</span></div><span class="slide-num">06 / 15</span>
+      <div class="slide-content">
+        <h2>果蔬汁 PEF 处理流程：先预处理，再脉冲，再冷链</h2>
+        <div class="timeline-track">
+          <div class="timeline-step"><div class="step-circle">1</div><div class="step-title">原料预处理</div><div class="step-desc">清洗、破碎、榨汁、过滤或均质，降低悬浮大颗粒影响。</div></div>
+          <div class="timeline-step"><div class="step-circle">2</div><div class="step-title">泵入处理腔</div><div class="step-desc">设定流量，使物料在电极间获得足够停留时间。</div></div>
+          <div class="timeline-step"><div class="step-circle">3</div><div class="step-title">PEF 处理</div><div class="step-desc">高压脉冲作用于微生物细胞膜，并影响部分酶活性。</div></div>
+          <div class="timeline-step"><div class="step-circle">4</div><div class="step-title">冷却灌装</div><div class="step-desc">控制温升，随后卫生灌装并冷藏储运。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Parameters -->
+    <div class="slide layout-detail">
+      <div class="slide-header"><h4>关键参数</h4><span class="tag">Process variables</span></div><span class="slide-num">07 / 15</span>
+      <div class="slide-content">
+        <h2>PEF 效果由电场剂量、食品性质和温度共同决定</h2>
+        <table class="table">
+          <thead><tr><th>参数</th><th>含义</th><th>对杀菌/品质的影响</th></tr></thead>
+          <tbody>
+            <tr><td>电场强度</td><td>单位常用 kV/cm，表示电极间电场大小。</td><td>越高越容易诱导电穿孔，但也可能增加能耗和温升。</td></tr>
+            <tr><td>脉冲宽度与频率</td><td>每个脉冲持续时间及单位时间脉冲次数。</td><td>决定处理剂量；过高可能导致热积累。</td></tr>
+            <tr><td>处理时间</td><td>物料在处理腔中实际接受脉冲的时间。</td><td>时间增加通常增强微生物失活和酶失活。</td></tr>
+            <tr><td>比能量</td><td>单位质量食品吸收的能量，常用 J/kg 或 kJ/kg。</td><td>是比较不同工艺强度的重要指标。</td></tr>
+            <tr><td>温度与电导率</td><td>食品温度、离子浓度和导电能力。</td><td>影响电流、焦耳热和电场分布，需根据果汁基质优化。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Applications overview -->
+    <div class="slide layout-dashboard">
+      <div class="slide-header"><h4>食品中的应用现状</h4><span class="tag">Application map</span></div><span class="slide-num">08 / 15</span>
+      <div class="slide-content">
+        <h2>PEF 更适合可泵送、导电性较好的液态食品</h2>
+        <div class="application-grid">
+          <div class="app-card"><div class="app-icon">🍊</div><h3>果蔬汁</h3><p>最典型：鲜榨感、营养与色泽保留需求高。</p></div>
+          <div class="app-card"><div class="app-icon">🥛</div><h3>乳制品</h3><p>用于降低微生物负荷，常与冷链或温和加热结合。</p></div>
+          <div class="app-card"><div class="app-icon">🥚</div><h3>蛋液</h3><p>液态体系适合连续处理，但需关注蛋白功能性质。</p></div>
+          <div class="app-card"><div class="app-icon">🍷</div><h3>酒类</h3><p>控制微生物并尽量减少热处理对香气的影响。</p></div>
+          <div class="app-card"><div class="app-icon">🧂</div><h3>液态调味品</h3><p>适合部分酱汁、调味液，但需根据电导率调参。</p></div>
+        </div>
+        <p class="source-note">提示：PEF 对“能连续流过处理腔”的食品更友好；固体、大颗粒或气泡多的体系处理难度更高。</p>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: Why juices -->
+    <div class="slide layout-split">
+      <div class="slide-header"><h4>为什么以果蔬汁为例</h4><span class="tag">Case focus</span></div><span class="slide-num">09 / 15</span>
+      <div class="slide-content">
+        <h2>果蔬汁同时满足“适合 PEF”和“怕高温”两个条件</h2>
+        <div class="split-body">
+          <div class="split-left">
+            <ol class="insight-list">
+              <li>液态体系可由泵输送，容易通过 PEF 处理腔。</li>
+              <li>含水和离子，具有一定电导率，能响应外加电场。</li>
+              <li>消费者期待鲜榨风味、天然色泽和维生素保留。</li>
+              <li>果汁中的 PME、PPO、LOX 等酶会导致浑浊、褐变、异味等品质问题。</li>
+            </ol>
+          </div>
+          <div class="split-right">
+            <div class="mini-stat-row">
+              <div class="mini-stat"><div class="mini-val">液态</div><div class="mini-label">可连续流动处理</div></div>
+              <div class="mini-stat"><div class="mini-val">热敏</div><div class="mini-label">色泽/风味/维生素易受热影响</div></div>
+              <div class="mini-stat"><div class="mini-val">典型</div><div class="mini-label">研究与产业案例相对丰富</div></div>
+            </div>
+            <div class="visual-card" style="margin-top:1rem;">
+              <div class="diagram-wrap">
+                <svg viewBox="0 0 520 260" role="img" aria-label="果蔬汁产品示意图">
+                  <rect x="70" y="50" width="90" height="160" rx="18" fill="rgba(30,43,250,.08)" stroke="var(--primary)" stroke-width="3"/>
+                  <rect x="205" y="30" width="110" height="190" rx="16" fill="rgba(30,43,250,.06)" stroke="var(--primary)" stroke-width="3"/>
+                  <rect x="360" y="70" width="86" height="140" rx="14" fill="rgba(30,43,250,.08)" stroke="var(--primary)" stroke-width="3"/>
+                  <path d="M84 126 C112 102 138 146 158 120 V196 H84 Z" fill="rgba(30,43,250,.18)"/>
+                  <path d="M220 118 C250 92 286 150 312 118 V206 H220 Z" fill="rgba(30,43,250,.16)"/>
+                  <path d="M373 132 C395 112 421 152 444 128 V198 H373 Z" fill="rgba(30,43,250,.18)"/>
+                  <text x="80" y="235" class="svg-label">NFC</text><text x="214" y="245" class="svg-label">冷压果汁</text><text x="360" y="235" class="svg-label">功能饮料</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: Paper intro -->
+    <div class="slide layout-split">
+      <div class="slide-header"><h4>核心论文介绍</h4><span class="tag">Representative study</span></div><span class="slide-num">10 / 15</span>
+      <div class="slide-content">
+        <h2>把 2024 年论文作为“代表性研究案例”，不是唯一汇报对象</h2>
+        <div class="split-body">
+          <div class="split-left paper-card">
+            <span class="badge">Innovative Food Science &amp; Emerging Technologies · 2024</span>
+            <div class="paper-title">Pulsed electric field processing of fruit juices with inactivation of enzymes with new inactivation kinetic model and determination of changes in quality parameters</div>
+            <div class="meta-grid">
+              <span>年份</span><span>2024</span>
+              <span>期刊</span><span>Innovative Food Science &amp; Emerging Technologies</span>
+              <span>卷/文章号</span><span>Volume 94, 103678</span>
+              <span>影响因子</span><span>约 6.8（按作业要求填写）</span>
+              <span>研究对象</span><span>葡萄汁、橙汁、番茄汁</span>
+              <span>链接</span><span>https://doi.org/10.1016/j.ifset.2024.103678</span>
+            </div>
+          </div>
+          <div class="split-right">
+            <div class="split-highlight">这页建议只放“文献信息卡片”，不要大量截图原文图表；后面两页用自己的流程图和结果总结讲清楚。<cite>呈现策略</cite></div>
+            <ul class="clean-list">
+              <li>研究重点：PEF 对 PME、PPO、LOX 酶失活的影响。</li>
+              <li>同时观察果汁品质参数，如色泽、可溶性固形物、抗氧化能力等。</li>
+              <li>作用：为“PEF 适合果蔬汁保鲜”提供近年研究证据。</li>
+            </ul>
+          </div>
+        </div>
+        <p class="source-note">ScienceDirect: https://www.sciencedirect.com/science/article/pii/S1466856424001176</p>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: Methods -->
+    <div class="slide layout-timeline">
+      <div class="slide-header"><h4>论文研究方法</h4><span class="tag">Experimental design</span></div><span class="slide-num">11 / 15</span>
+      <div class="slide-content">
+        <h2>三种果汁 × PEF 参数 × 酶活与品质指标检测</h2>
+        <div class="timeline-track">
+          <div class="timeline-step"><div class="step-circle">A</div><div class="step-title">样品</div><div class="step-desc">葡萄汁、橙汁、番茄汁，代表不同果汁基质。</div></div>
+          <div class="timeline-step"><div class="step-circle">B</div><div class="step-title">PEF 处理</div><div class="step-desc">改变电场强度、处理时间和输入能量，形成不同工艺强度。</div></div>
+          <div class="timeline-step"><div class="step-circle">C</div><div class="step-title">酶活检测</div><div class="step-desc">重点检测 PME、PPO、LOX，评估失活效果。</div></div>
+          <div class="timeline-step"><div class="step-circle">D</div><div class="step-title">品质评价</div><div class="step-desc">观察 pH、电导率、色差、总酚、抗氧化能力等指标。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: Results -->
+    <div class="slide layout-bars">
+      <div class="slide-header"><h4>论文主要结果</h4><span class="tag">Findings</span></div><span class="slide-num">12 / 15</span>
+      <div class="slide-content">
+        <h2>PEF 能显著降低关键酶活，同时多数品质指标变化较小</h2>
+        <div class="bars-container">
+          <div class="bar-item"><div><div class="bar-label">PME 失活趋势</div><div class="bar-note">与果汁浑浊稳定性相关</div></div><div class="bar-track"><div class="bar-fill" style="width:92%"></div></div><div class="bar-pct">增强</div></div>
+          <div class="bar-item"><div><div class="bar-label">PPO 失活趋势</div><div class="bar-note">与褐变反应相关</div></div><div class="bar-track"><div class="bar-fill" style="width:90%"></div></div><div class="bar-pct">增强</div></div>
+          <div class="bar-item"><div><div class="bar-label">LOX 失活趋势</div><div class="bar-note">与脂质氧化和异味相关</div></div><div class="bar-track"><div class="bar-fill" style="width:88%"></div></div><div class="bar-pct">增强</div></div>
+          <div class="bar-item"><div><div class="bar-label">处理时间/能量增加</div><div class="bar-note">酶失活效果随工艺强度提升</div></div><div class="bar-track"><div class="bar-fill" style="width:95%"></div></div><div class="bar-pct">正相关</div></div>
+        </div>
+        <div class="quality-row">
+          <div class="quality-card"><strong>色泽</strong><p>多数颜色参数无显著变化，说明外观品质较好保留。</p></div>
+          <div class="quality-card"><strong>TSS</strong><p>总可溶性固形物总体变化不明显。</p></div>
+          <div class="quality-card"><strong>总酚</strong><p>总酚和抗氧化能力可保持或有所提升。</p></div>
+          <div class="quality-card"><strong>结论</strong><p>PEF 具有作为果汁加工替代技术的潜力。</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 13: Pros and cons -->
+    <div class="slide layout-detail">
+      <div class="slide-header"><h4>技术优缺点</h4><span class="tag">Balanced view</span></div><span class="slide-num">13 / 15</span>
+      <div class="slide-content">
+        <h2>PEF 不是万能技术：优势明显，但应用边界也清楚</h2>
+        <div class="pros-cons">
+          <div class="detail-block"><h3>优点</h3><ul><li>低温短时处理，较好保留色泽、风味和营养。</li><li>连续化潜力强，适合液态食品工业生产线。</li><li>处理时间短，可与冷链、温和加热等联合。</li><li>对营养型细菌和部分酶活有较好控制效果。</li></ul></div>
+          <div class="detail-block"><h3>局限</h3><ul><li>设备投资和运行维护成本较高。</li><li>固体食品、大颗粒体系和气泡多的样品处理困难。</li><li>参数优化复杂，受电导率、温度、流速影响。</li><li>对芽孢等高耐受对象效果有限，常需组合工艺。</li></ul></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 14: Prospects -->
+    <div class="slide layout-dashboard">
+      <div class="slide-header"><h4>应用前景</h4><span class="tag">Future opportunities</span></div><span class="slide-num">14 / 15</span>
+      <div class="slide-content">
+        <h2>未来重点是高品质液态食品与组合保鲜工艺</h2>
+        <div class="future-grid">
+          <div class="future-card"><div class="num">01</div><h3>高端果汁产品</h3><p>冷压果汁、NFC 果汁、混合果蔬汁等强调鲜榨感和营养保留的品类，是 PEF 的主要机会。</p></div>
+          <div class="future-card"><div class="num">02</div><h3>功能饮料与新配方</h3><p>含维生素、多酚或功能因子的饮料对热敏感，适合探索低温处理路线。</p></div>
+          <div class="future-card"><div class="num">03</div><h3>联合保鲜</h3><p>PEF 可与冷藏、高压、温和加热或天然抑菌剂结合，以降低成本并扩大杀菌谱。</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 15: Summary -->
+    <div class="slide layout-closing">
+      <div class="closing-decoration"></div><div class="closing-decoration-2"></div>
+      <div class="accent-line" style="margin: 0 auto 1.5rem;"></div>
+      <h1>总结</h1>
+      <p class="closing-sub">PEF 是一种适合液态食品的非热杀菌/钝酶技术；果蔬汁是典型应用场景；未来关键在于降成本、优化参数并与其他保鲜技术组合。</p>
+      <a href="#" class="cta-btn">谢谢聆听</a>
+      <p class="closing-contact">关键词：Pulsed Electric Field · 电穿孔 · 果蔬汁保鲜 · 非热杀菌</p>
+    </div>
+
+  </div>
+
+  <!-- Navigation -->
+  <div class="slide-counter"><span id="current">1</span> / <span id="total">15</span></div>
+  <div class="keyboard-hint">使用方向键翻页</div>
+  <div class="progress-bar" id="progress"></div>
+  <div class="nav-controls">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" aria-label="Previous slide">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)" aria-label="Next slide">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const currentEl = document.getElementById('current');
+    const totalEl = document.getElementById('total');
+    const progressEl = document.getElementById('progress');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let current = 0;
+    const total = slides.length;
+    totalEl.textContent = total;
+
+    function updateSlide() {
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active', 'prev');
+        if (i === current) {
+          slide.classList.add('active');
+        } else if (i < current) {
+          slide.classList.add('prev');
+        }
+      });
+      currentEl.textContent = current + 1;
+      progressEl.style.width = ((current + 1) / total * 100) + '%';
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+    }
+
+    function changeSlide(dir) {
+      const next = current + dir;
+      if (next >= 0 && next < total) {
+        current = next;
+        updateSlide();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        changeSlide(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        changeSlide(-1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        current = 0;
+        updateSlide();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        current = total - 1;
+        updateSlide();
+      }
+    });
+
+    // Touch support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        changeSlide(diff > 0 ? 1 : -1);
+      }
+    }, { passive: true });
+
+    updateSlide();
+  </script>
+
+</body>
+</html>
